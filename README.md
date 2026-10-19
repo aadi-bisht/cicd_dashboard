@@ -102,7 +102,7 @@ _Coming soon: pipeline run and Grafana dashboard._
 
 ## What I learned
 
-_To be filled in as the project progresses: key decisions, problems hit, and how they were solved._
+![Grafana_dashboard](monitoring/Grafana_dashboard.png)
 
 ## Author
 
