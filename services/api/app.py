@@ -1,3 +1,5 @@
+import os
+import requests
 import time
 
 from flask import Flask, Response, g, jsonify, request
@@ -6,6 +8,8 @@ from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_
 app = Flask(__name__)
 
 item_list = []
+
+INVENTORY_URL = os.environ.get("INVENTORY_URL", "http://localhost:5001")
 
 REQUEST_COUNT  = Counter(
     "http_requests_total",
@@ -65,7 +69,6 @@ def get_items():
 def add_item():
     data = request.get_json(silent=True)
 
-    # check the body has a name
     if data is None:
         return jsonify({"error": "JSON body with a 'name' field is required"}), 400
     if "name" not in data:
@@ -78,6 +81,18 @@ def add_item():
     return jsonify(new_item), 201
 
 
+@app.route("/items/<name>/stock", methods=["GET"])
+def get_item_stock(name):
+    url = f"{INVENTORY_URL}/stock/{name}"
+
+    try:
+        resp = requests.get(url, timeout=2)
+    except requests.exceptions.RequestException:
+        return jsonify({"error": "inventory service unavailable"}), 503
+
+    return jsonify(resp.json()), resp.status_code
+
+
 @app.route("/metrics")
 def metrics():
     output = generate_latest()
@@ -85,5 +100,4 @@ def metrics():
 
 
 if __name__ == "__main__":
-    # 0.0.0.0 so it works inside docker later
     app.run(host="0.0.0.0", port=5000)

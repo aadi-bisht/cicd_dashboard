@@ -2,7 +2,7 @@
 
 A self-hosted CI/CD and observability project: a small Flask microservice app that is built, tested, and deployed automatically to Kubernetes on AWS, with the whole environment created from code and monitored through live Grafana dashboards.
 
-> **Status:** In progress (Day 1). The roadmap below shows what is done and what is next.
+> **Status:** In progress (Week 3). The roadmap below shows what is done and what is next.
 
 ## What this project does
 
@@ -55,39 +55,29 @@ The container image tag (for example `api:abc123`) is the handoff between the bu
 
 ```
 cicd-dashboard/
+  monitoring/
+    prometheus.yml
+    dashboard.json
   services/
     api/
+      Dockerfile
       app.py
       requirements.txt
+    inventory/
+      app.py
+      requirements.txt
+      Dockerfile
+  docker-compose.yml
   README.md
 ```
 
-More folders (`terraform/`, `k8s/`, `monitoring/`, `Jenkinsfile`) will be added as each stage is built.
-
-## Run locally
-
-```bash
-cd services/api
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python app.py
-```
-
-In another terminal:
-
-```bash
-curl http://localhost:5000/health
-curl -X POST http://localhost:5000/items -H "Content-Type: application/json" -d '{"name": "test"}'
-curl http://localhost:5000/items
-curl http://localhost:5000/metrics
-```
+More folders (`terraform/`, `k8s/`, `Jenkinsfile`) will be added as each stage is built.
 
 ## Roadmap
 
-- [ ] Flask `api` service with `/health` and `/metrics`
-- [ ] Dockerfile and local container run
-- [ ] Second Flask service
+- [x] Flask `api` service with `/health` and `/metrics`
+- [x] Dockerfile and local container run
+- [x] Second Flask service
 - [ ] Jenkins pipeline: test, build, push image
 - [ ] Terraform: AWS networking and Kubernetes cluster
 - [ ] Kubernetes manifests and automated deploy from the pipeline
@@ -102,7 +92,14 @@ _Coming soon: pipeline run and Grafana dashboard._
 
 ## What I learned
 
-![Grafana_dashboard](monitoring/Grafana_dashboard.png)
+![Grafana_dashboard1](monitoring/Grafana_dashboard.png)
+
+![Grafana_dashboard2](monitoring/Grafana_dashboard_2.png)
+Traffic ramps up in two stages, then drops off.
+flask-inventory goes down twice, once at the left edge (off the screen) and once around 23:47 to 23:53.
+During the second outage, flask-api error rate jumps from about 6% to about 50%, because every call to inventory returns a 503.
+p95 latency for flask-api rises to a few seconds, which is the 2-second timeout showing up.
+Both services return to normal after inventory recovers.
 
 ## Author
 
