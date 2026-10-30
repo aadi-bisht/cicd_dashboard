@@ -81,14 +81,10 @@ More folders (`terraform/`, `k8s/`, `Jenkinsfile`) will be added as each stage i
 - [ ] Jenkins pipeline: test, build, push image
 - [ ] Terraform: AWS networking and Kubernetes cluster
 - [ ] Kubernetes manifests and automated deploy from the pipeline
-- [ ] Prometheus scraping the services
-- [ ] Grafana dashboards for app and pipeline health
+- [x] Prometheus scraping the services
+- [x] Grafana dashboards for app and pipeline health
 - [ ] Architecture diagram and dashboard screenshots
 - [ ] Stretch: Helm chart, ArgoCD, OpenTelemetry
-
-## Screenshots
-
-_Coming soon: pipeline run and Grafana dashboard._
 
 ## What I learned
 
