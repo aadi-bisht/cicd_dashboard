@@ -38,5 +38,30 @@ pipeline {
                 sh 'docker build -t flask-inventory:${BUILD_NUMBER} services/inventory'
             }
         }
+
+        stage('Push images') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'DH_USER',
+                    passwordVariable: 'DH_TOKEN'
+                )]) {
+                    sh '''
+                        echo "$DH_TOKEN" | docker login -u "$DH_USER" --password-stdin
+
+                        docker tag flask-api:${BUILD_NUMBER} $DH_USER/flask-api:${BUILD_NUMBER}
+                        docker tag flask-inventory:${BUILD_NUMBER} $DH_USER/flask-inventory:${BUILD_NUMBER}
+
+                        docker push $DH_USER/flask-api:${BUILD_NUMBER}
+                        docker push $DH_USER/flask-inventory:${BUILD_NUMBER}
+                    '''
+                }
+            }
+            post {
+                always {
+                    sh 'docker logout || true'
+                }
+            }
+        }
     }
 }
